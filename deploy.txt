@@ -1,0 +1,51 @@
+Swappro VPS deploy flow
+=======================
+
+Server layout (/var/www):
+  swapbackend/
+  swapprocaddy/    ← run setup scripts from here
+  swapsite/
+
+Prerequisites
+-------------
+- Docker + Docker Compose installed
+- DNS A records for all hosts → VPS public IP:
+    swappro.store, www, api, db, portainer
+- Ports 80 and 443 open on the firewall
+
+One-time setup
+--------------
+cd /var/www/swapprocaddy
+chmod +x setup-networks.sh setup-ssl.sh
+./setup-networks.sh
+
+Deploy / update stacks
+----------------------
+cd /var/www/swapbackend
+git pull
+docker compose down
+docker compose up --build -d
+
+cd /var/www/swapprocaddy
+git pull
+docker compose up -d
+
+Issue / refresh TLS certificates
+----------------------------------
+cd /var/www/swapprocaddy
+./setup-ssl.sh
+
+Full first-time deploy (after git pull in both repos)
+-----------------------------------------------------
+cd /var/www/swapprocaddy
+./setup-networks.sh
+cd ../swapbackend && docker compose up --build -d
+cd ../swapprocaddy && docker compose up -d
+./setup-ssl.sh
+
+Verify
+------
+https://www.swappro.store
+https://api.swappro.store
+https://db.swappro.store
+https://portainer.swappro.store
