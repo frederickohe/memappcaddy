@@ -1,0 +1,23 @@
+# Swappro backend — Caddy entrypoint
+# Container DNS names must match container_name in ../swapbackend/docker-compose.yml.
+# TLS: Let's Encrypt (automatic). Point api/db.swappro.store at this VPS before starting.
+
+{
+	email {$CADDY_ACME_EMAIL:admin@useswappro.com}
+}
+
+api.swappro.store {
+	reverse_proxy swappro_backend:3090
+
+	request_body {
+		max_size 50MB
+	}
+}
+
+db.swappro.store {
+	reverse_proxy swappro_pgadmin:80
+
+	request_body {
+		max_size 50MB
+	}
+}

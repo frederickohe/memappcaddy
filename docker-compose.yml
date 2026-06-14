@@ -1,0 +1,29 @@
+# Central reverse proxy for the Swappro backend stack.
+# Create the shared network once: docker network create caddy
+# Start after ../swapbackend is up: docker compose up -d
+
+services:
+  caddy:
+    image: caddy:2
+    container_name: swappro-caddy
+    restart: unless-stopped
+    environment:
+      CADDY_ACME_EMAIL: ${CADDY_ACME_EMAIL:-admin@useswappro.com}
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    networks:
+      - caddy
+
+volumes:
+  caddy_data:
+  caddy_config:
+
+networks:
+  caddy:
+    external: true
+    name: caddy
