@@ -36,7 +36,7 @@ services:
     image: portainer/portainer-ce:latest
     container_name: swappro_portainer
     restart: unless-stopped
-    command: -H unix:///var/run/docker.sock --trusted-origins portainer.swappro.store
+    command: -H unix:///var/run/docker.sock --trusted-origins https://portainer.swappro.store
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - portainer_data:/data
