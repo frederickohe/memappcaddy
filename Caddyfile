@@ -35,7 +35,9 @@ db.swappro.store {
 }
 
 portainer.swappro.store {
-	reverse_proxy swappro_portainer:9000
+	reverse_proxy swappro_portainer:9000 {
+		header_up Origin {scheme}://{host}
+	}
 
 	request_body {
 		max_size 50MB
