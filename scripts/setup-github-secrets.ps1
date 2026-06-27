@@ -25,7 +25,7 @@ $owner = "frederickohe"
 foreach ($repo in $repos) {
     $fullName = "$owner/$repo"
     Write-Host "Setting secrets on $fullName ..."
-    & $gh secret set DEPLOY_HOST --repo $fullName --body "<VPS_PUBLIC_IP>"
+    & $gh secret set DEPLOY_HOST --repo $fullName --body "62.171.136.252"
     & $gh secret set DEPLOY_USER --repo $fullName --body "deploy"
     & $gh secret set DEPLOY_SSH_KEY --repo $fullName --body $privateKey
 }
