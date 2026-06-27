@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
 
 concurrency:
-  group: deploy-swapprocaddy-production
+  group: deploy-memappcaddy-production
   cancel-in-progress: false
 
 jobs:
@@ -14,7 +14,7 @@ jobs:
     runs-on: ubuntu-latest
     environment: production
     steps:
-      - name: Deploy swapprocaddy
+      - name: Deploy memappcaddy
         uses: appleboy/ssh-action@v1.2.0
         with:
           host: ${{ secrets.DEPLOY_HOST }}
@@ -23,4 +23,4 @@ jobs:
           script_stop: true
           script: |
             set -euo pipefail
-            bash /var/www/swapprocaddy/scripts/deploy.sh
+            bash /var/www/memappcaddy/scripts/deploy.sh

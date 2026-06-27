@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-REPO_DIR="/var/www/swapprocaddy"
+REPO_DIR="/var/www/memappcaddy"
 
 cd "$REPO_DIR"
 git fetch origin main
@@ -9,4 +9,4 @@ git reset --hard origin/main
 
 docker compose up -d
 
-echo "swapprocaddy deploy complete"
+echo "memappcaddy deploy complete"

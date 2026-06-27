@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
-# Bootstrap shared Docker networks for the Swappro stack on the VPS.
+# Bootstrap shared Docker networks for the Ymca Member App stack on the VPS.
 # Run once before starting any compose stack: ./setup-networks.sh
 #
 # Expected sibling layout:
-#   /var/www/swapbackend
-#   /var/www/swapprocaddy   (this repo)
-#   /var/www/swapsite
+#   /var/www/memapp-backend
+#   /var/www/memappcaddy   (this repo)
+#   /var/www/memapp-web
 
 set -euo pipefail
 
@@ -21,18 +21,19 @@ create_network() {
   fi
 }
 
-create_network "swappro" "Reverse proxy + inter-service HTTP (Caddy, API, pgAdmin, Portainer)"
+create_network "memapp" "Reverse proxy + inter-service HTTP (Caddy, API, pgAdmin, Portainer)"
 
 echo ""
 echo "Deploy order:"
 echo "  1. ./setup-networks.sh"
-echo "  2. cd ../swapbackend && docker compose up --build -d"
-echo "  3. cd ../swapprocaddy && docker compose up -d"
+echo "  2. cd ../memapp-backend && docker compose up --build -d"
+echo "  3. cd ../memappcaddy && docker compose up -d"
 echo "  4. ./setup-ssl.sh       (after DNS A records point here)"
 echo ""
 echo "DNS A records → this server's public IP:"
-echo "  swappro.store           → www redirect (Caddy)"
-echo "  www.swappro.store       → static site"
-echo "  api.swappro.store       → swappro_backend"
-echo "  db.swappro.store        → swappro_pgadmin"
-echo "  portainer.swappro.store → swappro_portainer"
+echo "  ymemberapp.com           → React app (public website)"
+echo "  www.ymemberapp.com       → redirect to apex"
+echo "  admin.ymemberapp.com     → React app (admin dashboard)"
+echo "  api.ymemberapp.com       → memapp_backend"
+echo "  db.ymemberapp.com        → memapp_pgadmin"
+echo "  portainer.ymemberapp.com → memapp_portainer"

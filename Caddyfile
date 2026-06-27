@@ -1,41 +1,50 @@
-# Swappro — Caddy entrypoint
+# Ymca Member App — Caddy entrypoint
 # Container DNS names must match container_name in docker-compose files.
-# TLS: Let's Encrypt (automatic). Point all *.swappro.store A records at this VPS before starting.
+# TLS: Let's Encrypt (automatic). Point all *.ymemberapp.com A records at this VPS before starting.
 
 {
-	email {$CADDY_ACME_EMAIL:admin@useswappro.com}
+	email {$CADDY_ACME_EMAIL:admin@ymemberapp.com}
 }
 
-# Static marketing site (../swapsite mounted at /srv/www)
-www.swappro.store {
+# React app — member website + admin (../memapp-web/dist)
+ymemberapp.com {
 	root * /srv/www
 	encode gzip
+	try_files {path} /index.html
 	file_server
 }
 
-# Redirect apex to www
-swappro.store {
-	redir https://www.swappro.store{uri} permanent
+# Redirect www to apex
+www.ymemberapp.com {
+	redir https://ymemberapp.com{uri} permanent
 }
 
-api.swappro.store {
-	reverse_proxy swappro_backend:3090
+# Same build as apex; routing is hostname-based in React
+admin.ymemberapp.com {
+	root * /srv/www
+	encode gzip
+	try_files {path} /index.html
+	file_server
+}
+
+api.ymemberapp.com {
+	reverse_proxy memapp_backend:3090
 
 	request_body {
 		max_size 50MB
 	}
 }
 
-db.swappro.store {
-	reverse_proxy swappro_pgadmin:80
+db.ymemberapp.com {
+	reverse_proxy memapp_pgadmin:80
 
 	request_body {
 		max_size 50MB
 	}
 }
 
-portainer.swappro.store {
-	reverse_proxy swappro_portainer:9000 {
+portainer.ymemberapp.com {
+	reverse_proxy memapp_portainer:9000 {
 		header_up Origin {scheme}://{host}
 	}
 

@@ -1,47 +1,48 @@
-# Central reverse proxy for the Swappro stack.
+# Central reverse proxy for the Ymca Member App stack.
 # Expected layout on the VPS (sibling repos):
-#   systems/swapbackend
-#   systems/swapprocaddy
-#   systems/swapsite
+#   systems/memapp-backend
+#   systems/memappcaddy
+#   systems/memapp-web
 #
-# Create the shared network once: ./setup-networks.sh  (or: docker network create swappro)
+# Create the shared network once: ./setup-networks.sh  (or: docker network create memapp)
 # Start order:
-#   1. cd ../swapbackend && docker compose up -d
-#   2. cd ../swapprocaddy && docker compose up -d
+#   1. cd ../memapp-backend && docker compose up -d
+#   2. cd ../memapp-web && npm ci && npm run build
+#   3. cd ../memappcaddy && docker compose up -d
 #
-# DNS A records → VPS IP (13.140.185.135):
-#   swappro.store, www, api, db, portainer
+# DNS A records → VPS IP:
+#   ymemberapp.com, www, api, admin, db, portainer
 
 services:
   caddy:
     image: caddy:2
-    container_name: swappro-caddy
+    container_name: memapp-caddy
     restart: unless-stopped
     environment:
-      CADDY_ACME_EMAIL: ${CADDY_ACME_EMAIL:-admin@useswappro.com}
+      CADDY_ACME_EMAIL: ${CADDY_ACME_EMAIL:-admin@ymemberapp.com}
     ports:
       - "80:80"
       - "443:443"
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile:ro
-      - ../swapsite:/srv/www:ro
+      - ../memapp-web/dist:/srv/www:ro
       - caddy_data:/data
       - caddy_config:/config
     networks:
-      - swappro
+      - memapp
     depends_on:
       - portainer
 
   portainer:
     image: portainer/portainer-ce:latest
-    container_name: swappro_portainer
+    container_name: memapp_portainer
     restart: unless-stopped
-    command: -H unix:///var/run/docker.sock --trusted-origins portainer.swappro.store
+    command: -H unix:///var/run/docker.sock --trusted-origins portainer.ymemberapp.com
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - portainer_data:/data
     networks:
-      - swappro
+      - memapp
 
 volumes:
   caddy_data:
@@ -49,6 +50,6 @@ volumes:
   portainer_data:
 
 networks:
-  swappro:
+  memapp:
     external: true
-    name: swappro
+    name: memapp

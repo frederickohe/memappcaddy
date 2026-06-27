@@ -1,70 +1,71 @@
-Swappro VPS deploy flow
-=======================
+Ymca Member App VPS deploy flow
+================================
 
 Server layout (/var/www):
-  swapbackend/
-  swapprocaddy/    ← run setup scripts from here
-  swapsite/
+  memapp-backend/
+  memappcaddy/       ← run setup scripts from here
+  memapp-web/        ← React website + admin (build output in dist/)
 
 Prerequisites
 -------------
 - Docker + Docker Compose installed
 - DNS A records for all hosts → VPS public IP:
-    swappro.store, www, api, db, portainer
+    ymemberapp.com, www, api, admin, db, portainer
 - Ports 80 and 443 open on the firewall
 
 One-time setup
 --------------
-cd /var/www/swapprocaddy
+cd /var/www/memappcaddy
 chmod +x setup-networks.sh setup-ssl.sh
 ./setup-networks.sh
 
 Deploy / update stacks
 ----------------------
-cd /var/www/swapbackend
+cd /var/www/memapp-backend
 git pull
 docker compose down
 docker compose up --build -d
 
-cd /var/www/swapprocaddy
+cd /var/www/memappcaddy
 git pull
 docker compose up -d
 
 Issue / refresh TLS certificates
 ----------------------------------
-cd /var/www/swapprocaddy
+cd /var/www/memappcaddy
 ./setup-ssl.sh
 
 Full first-time deploy (after git pull in both repos)
 -----------------------------------------------------
-cd /var/www/swapprocaddy
+cd /var/www/memappcaddy
 ./setup-networks.sh
-cd ../swapbackend && docker compose up --build -d
-cd ../swapprocaddy && docker compose up -d
+cd ../memapp-backend && docker compose up --build -d
+cd ../memappcaddy && docker compose up -d
 ./setup-ssl.sh
 
 Verify
 ------
-https://www.swappro.store
-https://api.swappro.store
-https://db.swappro.store
-https://portainer.swappro.store
+https://ymemberapp.com
+https://admin.ymemberapp.com
+https://api.ymemberapp.com
+https://db.ymemberapp.com
+https://portainer.ymemberapp.com
 
 CI/CD (GitHub Actions)
 ----------------------
 Each repo deploys on push to `main` via `.github/workflows/deploy.yml`.
 
 Server paths and scripts:
-  /var/www/swapsite/scripts/deploy.sh      → git pull + restart Caddy
-  /var/www/swapbackend/scripts/deploy.sh   → git pull + docker compose up --build -d
-  /var/www/swapprocaddy/scripts/deploy.sh  → git pull + docker compose up -d
+  /var/www/memapp-web/scripts/deploy.sh      → git pull + npm build + restart Caddy
+  /var/www/memapp-backend/scripts/deploy.sh  → git pull + docker compose up --build -d
+  /var/www/memappcaddy/scripts/deploy.sh     → git pull + docker compose up -d
 
-One-time GitHub secrets (all three repos):
-  DEPLOY_HOST     = 13.140.185.135
+One-time GitHub secrets (all repos):
+  DEPLOY_HOST     = <VPS public IP>
   DEPLOY_USER     = deploy
-  DEPLOY_SSH_KEY  = private key from ~/.swappro-deploy/github_actions_deploy
+  DEPLOY_SSH_KEY  = private key from ~/.memapp-deploy/github_actions_deploy
 
-After `gh auth login`, run from swapprocaddy:
+After `gh auth login`, run from memappcaddy:
   powershell -ExecutionPolicy Bypass -File scripts/setup-github-secrets.ps1
 
 Manual deploy on server:

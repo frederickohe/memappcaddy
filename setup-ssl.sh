@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
-# Obtain TLS certificates via Caddy (Let's Encrypt) for swappro.store.
+# Obtain TLS certificates via Caddy (Let's Encrypt) for ymemberapp.com.
 #
 # Prerequisites:
 #   - ./setup-networks.sh has been run
-#   - ../swapbackend and this stack are running
+#   - ../memapp-backend and this stack are running
 #   - DNS A records for all hostnames below point to this server
 #   - Ports 80 and 443 are reachable from the internet
 #
@@ -15,22 +15,23 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 CADDY_DIR="$SCRIPT_DIR"
-BACKEND_DIR="$(cd "$SCRIPT_DIR/../swapbackend" && pwd)"
-CADDY_CONTAINER="${CADDY_CONTAINER:-swappro-caddy}"
+BACKEND_DIR="$(cd "$SCRIPT_DIR/../memapp-backend" && pwd)"
+CADDY_CONTAINER="${CADDY_CONTAINER:-memapp-caddy}"
 
 DOMAINS=(
-  swappro.store
-  www.swappro.store
-  api.swappro.store
-  db.swappro.store
-  portainer.swappro.store
+  ymemberapp.com
+  www.ymemberapp.com
+  admin.ymemberapp.com
+  api.ymemberapp.com
+  db.ymemberapp.com
+  portainer.ymemberapp.com
 )
 
 REQUIRED_CONTAINERS=(
-  swappro_backend
-  swappro_pgadmin
-  swappro_portainer
-  swappro-caddy
+  memapp_backend
+  memapp_pgadmin
+  memapp_portainer
+  memapp-caddy
 )
 
 info() { echo "==> $*"; }
@@ -102,19 +103,19 @@ require_command docker
 require_command curl
 require_command openssl
 
-[[ -d "$BACKEND_DIR" ]] || fail "swapbackend not found at $BACKEND_DIR (expected sibling of swapprocaddy)"
+[[ -d "$BACKEND_DIR" ]] || fail "memapp-backend not found at $BACKEND_DIR (expected sibling of memappcaddy)"
 
-info "Checking Docker network 'swappro'"
-docker network inspect swappro >/dev/null 2>&1 || fail "Network 'swappro' not found. Run ./setup-networks.sh first."
+info "Checking Docker network 'memapp'"
+docker network inspect memapp >/dev/null 2>&1 || fail "Network 'memapp' not found. Run ./setup-networks.sh first."
 
-info "Starting Swappro backend stack (if needed)"
+info "Starting Ymca Member App backend stack (if needed)"
 (
   cd "$BACKEND_DIR"
   docker compose up -d
 )
 
-for name in swappro_backend swappro_pgadmin; do
-  container_running "$name" || fail "Container '$name' is not running. Check: cd ../swapbackend && docker compose logs"
+for name in memapp_backend memapp_pgadmin; do
+  container_running "$name" || fail "Container '$name' is not running. Check: cd ../memapp-backend && docker compose logs"
 done
 
 info "Starting Caddy + Portainer (if needed)"
@@ -124,7 +125,7 @@ info "Starting Caddy + Portainer (if needed)"
 )
 
 for name in "${REQUIRED_CONTAINERS[@]}"; do
-  container_running "$name" || fail "Container '$name' is not running. Check: cd swapprocaddy && docker compose logs"
+  container_running "$name" || fail "Container '$name' is not running. Check: cd memappcaddy && docker compose logs"
 done
 
 info "Validating Caddyfile"

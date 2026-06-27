@@ -1,4 +1,4 @@
-# One-time setup for Swappro GitHub Actions deploy secrets.
+# One-time setup for Ymca Member App GitHub Actions deploy secrets.
 # Prerequisites: GitHub CLI installed and authenticated (`gh auth login`).
 #
 # Usage:
@@ -13,19 +13,19 @@ if (-not (Test-Path $gh)) {
 
 & $gh auth status | Out-Null
 
-$keyPath = Join-Path $env:USERPROFILE ".swappro-deploy\github_actions_deploy"
+$keyPath = Join-Path $env:USERPROFILE ".memapp-deploy\github_actions_deploy"
 if (-not (Test-Path $keyPath)) {
     throw "Deploy key not found at $keyPath. Re-run CI/CD setup or regenerate the key."
 }
 
 $privateKey = Get-Content -Raw $keyPath
-$repos = @("swapsite", "swapbackend", "swapprocaddy")
+$repos = @("memapp-web", "mapp-backend", "memappcaddy")
 $owner = "frederickohe"
 
 foreach ($repo in $repos) {
     $fullName = "$owner/$repo"
     Write-Host "Setting secrets on $fullName ..."
-    & $gh secret set DEPLOY_HOST --repo $fullName --body "13.140.185.135"
+    & $gh secret set DEPLOY_HOST --repo $fullName --body "<VPS_PUBLIC_IP>"
     & $gh secret set DEPLOY_USER --repo $fullName --body "deploy"
     & $gh secret set DEPLOY_SSH_KEY --repo $fullName --body $privateKey
 }
