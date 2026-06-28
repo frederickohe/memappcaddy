@@ -18,16 +18,21 @@ if (-not (Test-Path $keyPath)) {
     throw "Deploy key not found at $keyPath. Re-run CI/CD setup or regenerate the key."
 }
 
-$privateKey = Get-Content -Raw $keyPath
-$repos = @("memapp-web", "mapp-backend", "memappcaddy")
+$repos = @("memapp-web", "memapp-backend", "memappcaddy")
 $owner = "frederickohe"
+$deployHost = "62.171.136.252"
+$deployUser = "deploy"
 
 foreach ($repo in $repos) {
     $fullName = "$owner/$repo"
-    Write-Host "Setting secrets on $fullName ..."
-    & $gh secret set DEPLOY_HOST --repo $fullName --body "62.171.136.252"
-    & $gh secret set DEPLOY_USER --repo $fullName --body "deploy"
-    & $gh secret set DEPLOY_SSH_KEY --repo $fullName --body $privateKey
+    Write-Host "Setting secrets on $fullName (repo + production environment) ..."
+    & $gh secret set DEPLOY_HOST --repo $fullName --body $deployHost
+    & $gh secret set DEPLOY_USER --repo $fullName --body $deployUser
+    Get-Content -Raw $keyPath | & $gh secret set DEPLOY_SSH_KEY --repo $fullName
+
+    & $gh secret set DEPLOY_HOST --repo $fullName --env production --body $deployHost
+    & $gh secret set DEPLOY_USER --repo $fullName --env production --body $deployUser
+    Get-Content -Raw $keyPath | & $gh secret set DEPLOY_SSH_KEY --repo $fullName --env production
 }
 
 Write-Host "Done. Re-run failed workflows from GitHub Actions or push a commit to trigger deploy."

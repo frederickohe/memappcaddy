@@ -12,7 +12,6 @@ concurrency:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    environment: production
     steps:
       - name: Deploy memappcaddy
         uses: appleboy/ssh-action@v1.2.0
