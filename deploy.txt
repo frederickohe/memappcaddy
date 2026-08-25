@@ -53,20 +53,29 @@ https://portainer.ymemberapp.com
 
 CI/CD (GitHub Actions)
 ----------------------
-Each repo deploys on push to `main` via `.github/workflows/deploy.yml`.
+Backend and admin portal deploy from GitHub Actions on push to `main`.
 
-Server paths and scripts:
-  /var/www/memapp-web/scripts/deploy.sh      → git pull + npm build + restart Caddy
-  /var/www/memapp-backend/scripts/deploy.sh  → git pull + docker compose up --build -d
-  /var/www/memappcaddy/scripts/deploy.sh     → git pull + docker compose up -d
+  memapp-backend  → syntax check, upload source, docker compose up --build
+  memapp-web      → production build, upload dist/, restart Caddy
+                    (serves ymemberapp.com and admin.ymemberapp.com)
 
-One-time GitHub secrets (all repos):
-  DEPLOY_HOST     = <VPS public IP>
+Pull requests only run CI. Production deploys also run a public health check.
+
+One-time GitHub secrets (both repos):
+  DEPLOY_HOST     = 62.171.136.252
   DEPLOY_USER     = deploy
-  DEPLOY_SSH_KEY  = private key from ~/.memapp-deploy/github_actions_deploy
+  DEPLOY_SSH_KEY  = private key that can SSH as that user
 
-After `gh auth login`, run from memappcaddy:
-  powershell -ExecutionPolicy Bypass -File scripts/setup-github-secrets.ps1
+On the VPS as root (once):
+  bash /var/www/memappcaddy/scripts/setup-server-for-cicd.sh
+
+On your machine (macOS/Linux):
+  gh auth login
+  bash memapp-backend/scripts/setup-github-secrets.sh
+
+Then push to main, or run "CI and deploy" from the Actions tab.
 
 Manual deploy on server:
-  bash /var/www/<repo>/scripts/deploy.sh
+  bash /var/www/memapp-backend/scripts/deploy.sh
+  bash /var/www/memapp-web/scripts/deploy.sh
+  bash /var/www/memappcaddy/scripts/deploy.sh
