@@ -1,4 +1,4 @@
-# Central reverse proxy for the Ymca Member App stack.
+# Central reverse proxy for the YMCA Member App stack.
 # Expected layout on the VPS (sibling repos):
 #   systems/memapp-backend
 #   systems/memappcaddy

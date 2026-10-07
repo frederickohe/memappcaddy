@@ -1,4 +1,4 @@
-Ymca Member App VPS deploy flow
+YMCA Member App VPS deploy flow
 ================================
 
 Server layout (/var/www):
